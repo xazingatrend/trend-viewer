@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>데일리 트렌드 뷰어</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset-light.min.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23ff4d6d'/><text x='50' y='72' text-anchor='middle' font-size='60' font-weight='900' font-family='system-ui' fill='white'>T</text></svg>">
 <style>
   .icon { display: inline-block; width: 1em; height: 1em; vertical-align: -0.125em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
   .icon-sm { width: 14px; height: 14px; }
@@ -55,8 +56,8 @@
     outline-offset: 2px;
   }
   header { position: sticky; top: 0; z-index: 50; background: rgba(15,17,21,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-  header h1 { font-size: 20px; font-weight: 800; }
-  header h1 span { color: var(--accent); }
+  header h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+  header h1 span { color: var(--accent); font-weight: 800; }
   #today { color: var(--muted); font-size: 13px; }
   #searchForm { margin-left: auto; display: flex; gap: 6px; }
   #searchInput { background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px; padding: 8px 13px; color: var(--text); font-size: 13px; width: 230px; transition: border-color var(--transition), background-color var(--transition); }
@@ -232,7 +233,10 @@
   .home-jump:hover { border-color: var(--border-hover); background: var(--surface-3); color: var(--text); }
   .home-jump:active { transform: scale(0.98); }
   .home-section-body { padding: 10px; }
-  .home-rowgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 8px; }
+  .home-rowgrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  @media (max-width: 1200px) { .home-rowgrid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 768px) { .home-rowgrid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .home-rowgrid { grid-template-columns: 1fr; } }
   .home-row { display: grid; grid-template-columns: 88px 1fr; gap: 10px; align-items: center; min-height: 72px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 8px; color: var(--text); cursor: pointer; transition: transform var(--transition-fast), box-shadow var(--transition), border-color var(--transition-fast); }
   .home-row:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: var(--shadow-md); }
   .home-row:active { transform: scale(0.98); }
