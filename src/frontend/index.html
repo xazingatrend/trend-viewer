@@ -87,9 +87,11 @@
   .meta { padding: 10px 12px 12px; }
   .title { font-size: 13.5px; font-weight: 600; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 36px; }
   .sub { margin-top: 6px; color: var(--muted); font-size: 12px; display: flex; flex-wrap: wrap; gap: 4px 8px; font-variant-numeric: tabular-nums; }
-  .views, .rank, .len, .sortcount, .pstats, .modelcard .msub, #today, #updated { font-variant-numeric: tabular-nums; }
+  .views, .rank, .len, .sortcount, .pstats, .modelcard .msub, #today, #updated, .cache-age-line { font-variant-numeric: tabular-nums; }
   .views { color: var(--accent); font-weight: 700; }
   .status { padding: 60px 0; text-align: center; color: var(--muted); font-size: 15px; }
+  .status.cache-age { display: block; min-height: 22px; padding: 0 0 12px; text-align: left; font-size: 12px; }
+  .cache-age-line { color: var(--muted); font-size: 12px; line-height: 1.45; }
   .skeleton-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
   .skeleton-grid.shorts { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
   .skeleton-card { position: relative; overflow: hidden; min-height: 210px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; }
@@ -134,8 +136,13 @@
   .addbar input { flex: 1; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 14px; transition: border-color var(--transition), background-color var(--transition); }
   .addbar button { background: var(--accent2); border: none; border-radius: 8px; padding: 10px 18px; color: #fff; font-weight: 700; cursor: pointer; transition: transform var(--transition-fast), background-color var(--transition); }
   .note { color: var(--muted); font-size: 12.5px; margin-bottom: 18px; line-height: 1.6; }
-  .saved-card .del { position: absolute; top: 8px; right: 8px; background: rgba(15,17,21,.82); color: #fff; border: none; border-radius: 6px; padding: 3px 8px; cursor: pointer; font-size: 12px; display: none; }
-  .saved-card:hover .del { display: block; }
+  .bookmark-toggle { position: absolute; top: 8px; right: 8px; z-index: 4; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 8px; background: rgba(15,17,21,.78); color: var(--text-secondary); cursor: pointer; opacity: .55; transition: opacity var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast), transform var(--transition-fast); }
+  .bookmark-toggle:hover, .bookmark-toggle:focus-visible, .trend-card:hover .bookmark-toggle { opacity: 1; }
+  .bookmark-toggle:active { transform: scale(.96); }
+  .bookmark-toggle[aria-pressed="true"] { opacity: 1; color: var(--accent); border-color: rgba(255,77,109,.5); background: rgba(255,77,109,.14); }
+  .bookmark-toggle[aria-pressed="true"] .icon { fill: currentColor; }
+  .saved-card .del { position: absolute; top: 8px; right: 8px; background: rgba(15,17,21,.82); color: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 4px 9px; cursor: pointer; font-size: 12px; opacity: .78; transition: opacity var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast); }
+  .saved-card .del:hover, .saved-card .del:focus-visible { opacity: 1; border-color: var(--border-hover); background: var(--surface-3); }
 
   /* AI 탭 */
   .ai-section { margin-bottom: 34px; }
@@ -178,7 +185,9 @@
   .sortlist button.sel { color: var(--accent); font-weight: 700; }
   .sortlist button .check { margin-left: auto; opacity: 0; }
   .sortlist button.sel .check { opacity: 1; }
-  .sortcount { color: var(--muted); font-size: 12.5px; }
+  .sortcount { color: var(--muted); font-size: 12.5px; display: inline-flex; flex-direction: column; gap: 2px; min-height: 34px; justify-content: center; }
+  .sortcount .count-main { color: var(--muted); }
+  .fallback-info { display: flex; align-items: center; gap: 7px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-1); color: var(--muted); font-size: 12.5px; line-height: 1.5; padding: 10px 12px; margin: 4px 0 12px; }
 
   /* 소셜 포스트(X·스레드) 카드 */
   .postlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
@@ -222,6 +231,14 @@
   .home-row-meta { margin-top: 5px; display: flex; flex-wrap: wrap; gap: 4px 8px; color: var(--muted); font-size: 11.5px; font-variant-numeric: tabular-nums; }
   .home-row-meta .hot { color: var(--home-color, var(--accent)); font-weight: 750; }
   .home-section-body .empty-state, .home-section-body .error-inline { padding: 14px; }
+  .saved-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+  .saved-card { position: relative; display: grid; grid-template-rows: auto 1fr; min-height: 170px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; color: var(--text); cursor: pointer; transition: transform var(--transition-fast), border-color var(--transition-fast), background-color var(--transition); }
+  .saved-card:hover { transform: translateY(-2px); border-color: var(--border-hover); }
+  .saved-thumb { width: 100%; aspect-ratio: 16/9; object-fit: cover; background: var(--bg); }
+  .saved-meta { padding: 11px 12px 13px; }
+  .saved-title { padding-right: 28px; font-size: 13.5px; font-weight: 650; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .saved-sub { margin-top: 8px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .saved-source { border-radius: 6px; padding: 2px 7px; background: color-mix(in srgb, var(--source-color, var(--accent)) 16%, transparent); color: var(--source-color, var(--accent)); font-weight: 750; }
 
   /* 재생 모달 */
   #modal { position: fixed; inset: 0; background: rgba(15,17,21,.88); display: none; align-items: center; justify-content: center; z-index: 100; padding: 24px; }
@@ -377,6 +394,11 @@
     <div class="status" id="ttStatus"></div>
     <div class="grid shorts" id="ttGrid"></div>
   </div>
+
+  <div id="savedView" style="display:none">
+    <div class="status cache-age" id="savedStatus"></div>
+    <div class="saved-grid" id="savedGrid"></div>
+  </div>
 </main>
 
 <div id="modal" role="dialog" aria-modal="true" aria-label="영상 재생">
@@ -399,6 +421,7 @@ const VIEWS = [
   { id: 'x', label: 'X', svgIcon: 'i-at-sign', color: '--c-x', elementId: 'xView', load: (f) => loadSocial('x', f), toolbar: 'accounts', hasForce: true },
   { id: 'threads', label: '스레드', svgIcon: 'i-at-sign', color: '--c-threads', elementId: 'threadsView', load: (f) => loadSocial('threads', f), toolbar: 'accounts', hasForce: true },
   { id: 'tiktok', label: '틱톡', svgIcon: 'i-music', color: '--c-tiktok', elementId: 'tiktokView', load: (f) => loadTikTok(f), toolbar: 'accounts', hasForce: true },
+  { id: 'saved', label: '저장됨', svgIcon: 'i-bookmark', color: '--accent', elementId: 'savedView', load: () => renderSaved(), toolbar: 'none' },
 ];
 
 const state = { tab: 'home', category: '전체', period: 'week', categories: ['전체'], search: '' };
@@ -406,6 +429,7 @@ const loadedViews = new Set();
 const viewElementIds = [...new Set(VIEWS.map(v => v.elementId))];
 let accountManagers = {};
 let sortMenus = {};
+let savedByUrl = new Map();
 
 const fmt = n => {
   if (n >= 1e8) return (n / 1e8).toFixed(1).replace(/\.0$/, '') + '억회';
@@ -453,6 +477,55 @@ function resetStatus(target) {
   target.className = 'status';
   target.removeAttribute('role');
   target.innerHTML = '';
+}
+
+function formatAge(ts) {
+  if (!ts) return '';
+  const s = Math.max(0, Date.now() / 1000 - ts);
+  if (s < 60) return '방금';
+  if (s < 3600) return Math.floor(s / 60) + '분 전';
+  if (s < 86400) return Math.floor(s / 3600) + '시간 전';
+  return Math.floor(s / 86400) + '일 전';
+}
+
+function formatDuration(seconds) {
+  if (!seconds) return '';
+  if (seconds < 60) return Math.max(1, Math.floor(seconds)) + '초';
+  if (seconds < 3600) return Math.floor(seconds / 60) + '분';
+  if (seconds < 86400) return Math.floor(seconds / 3600) + '시간';
+  return Math.floor(seconds / 86400) + '일';
+}
+
+function cacheAgeText(data) {
+  if (!data || !data.fetchedAt || !data.cacheTtl) return '';
+  return `${formatAge(data.fetchedAt)} 수집 · ${formatDuration(data.cacheTtl)} 캐시`;
+}
+
+function renderCacheAge(target, data) {
+  const text = cacheAgeText(data);
+  if (!target) return;
+  if (!text) {
+    target.innerHTML = '';
+    return;
+  }
+  target.className = 'status cache-age';
+  target.style.display = 'block';
+  target.textContent = text;
+}
+
+function setSortCount(target, text, data) {
+  target.innerHTML = '';
+  const main = document.createElement('span');
+  main.className = 'count-main';
+  main.textContent = text || '';
+  target.appendChild(main);
+  const cacheText = cacheAgeText(data);
+  if (cacheText) {
+    const cache = document.createElement('span');
+    cache.className = 'cache-age-line';
+    cache.textContent = cacheText;
+    target.appendChild(cache);
+  }
 }
 
 function setSelectedTab(viewId) {
@@ -585,6 +658,75 @@ function wireCardAction(el, onClick) {
   });
 }
 
+function rebuildSavedByUrl(items = []) {
+  savedByUrl = new Map();
+  items.forEach(item => {
+    if (item && item.url) savedByUrl.set(item.url, item);
+  });
+  updateBookmarkButtons();
+}
+
+function updateBookmarkButtons() {
+  document.querySelectorAll('.bookmark-toggle[data-url]').forEach(btn => {
+    const item = savedByUrl.get(btn.dataset.url);
+    const saved = Boolean(item);
+    btn.classList.toggle('saved', saved);
+    btn.setAttribute('aria-pressed', saved ? 'true' : 'false');
+    btn.setAttribute('aria-label', saved ? '저장 취소' : '저장');
+  });
+}
+
+async function syncSaved(action, payload) {
+  const res = await fetch('/api/saved', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, ...payload }),
+  });
+  const data = await res.json();
+  rebuildSavedByUrl(data.items || []);
+  if (state.tab === 'saved') renderSaved();
+}
+
+async function initSaved() {
+  try {
+    const data = await (await fetch('/api/saved')).json();
+    rebuildSavedByUrl(data.items || []);
+  } catch (e) {
+    rebuildSavedByUrl([]);
+  }
+}
+
+function createBookmarkButton(bookmarkData) {
+  if (!bookmarkData?.url) return null;
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'bookmark-toggle';
+  btn.dataset.url = bookmarkData.url;
+  btn.setAttribute('aria-pressed', savedByUrl.has(bookmarkData.url) ? 'true' : 'false');
+  btn.setAttribute('aria-label', savedByUrl.has(bookmarkData.url) ? '저장 취소' : '저장');
+  btn.innerHTML = '<svg class="icon icon-md"><use href="#i-bookmark"/></svg>';
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    const saved = savedByUrl.get(bookmarkData.url);
+    if (saved) syncSaved('remove', { id: saved.id });
+    else syncSaved('add', {
+      source: bookmarkData.source || '',
+      title: bookmarkData.title || '',
+      url: bookmarkData.url,
+      thumbnail: bookmarkData.thumbnail || '',
+    });
+  });
+  btn.addEventListener('keydown', e => {
+    e.stopPropagation();
+    if (e.key === 'Enter' || e.key === ' ') e.stopPropagation();
+  });
+  btn.addEventListener('keyup', e => {
+    e.stopPropagation();
+    if (e.key === 'Enter' || e.key === ' ') e.stopPropagation();
+  });
+  return btn;
+}
+
 function renderMetaItems(container, metaItems, variant) {
   (metaItems || []).forEach(item => {
     const span = document.createElement('span');
@@ -614,6 +756,7 @@ function createTrendCard({ thumbnail, rank, title, subtitle, metaItems, onClick,
   else el.classList.add('card');
   setBookmarkDataset(el, bookmarkData);
   wireCardAction(el, onClick);
+  const bookmarkBtn = createBookmarkButton(bookmarkData);
 
   if (variant === 'text') {
     const head = document.createElement('div');
@@ -642,6 +785,7 @@ function createTrendCard({ thumbnail, rank, title, subtitle, metaItems, onClick,
       img.src = thumbnail;
       el.appendChild(img);
     }
+    if (bookmarkBtn) el.appendChild(bookmarkBtn);
     const stats = document.createElement('div');
     stats.className = 'sub pstats';
     renderMetaItems(stats, metaItems, variant);
@@ -677,6 +821,7 @@ function createTrendCard({ thumbnail, rank, title, subtitle, metaItems, onClick,
     renderMetaItems(sub, metaItems, variant);
     meta.appendChild(sub);
     el.appendChild(meta);
+    if (bookmarkBtn) el.appendChild(bookmarkBtn);
     return el;
   }
 
@@ -695,7 +840,10 @@ function createTrendCard({ thumbnail, rank, title, subtitle, metaItems, onClick,
       rankEl.textContent = `${rank}위`;
       thumbWrap.appendChild(rankEl);
     }
+    if (bookmarkBtn) thumbWrap.appendChild(bookmarkBtn);
     el.appendChild(thumbWrap);
+  } else if (bookmarkBtn) {
+    el.appendChild(bookmarkBtn);
   }
 
   const meta = document.createElement('div');
@@ -746,6 +894,7 @@ async function loadVideos(force = false) {
     if (seq !== loadSeq) return; // 더 최신 요청이 있으면 무시
     document.getElementById('updated').textContent =
       '업데이트: ' + new Date(data.fetchedAt * 1000).toLocaleTimeString('ko-KR');
+    renderCacheAge(status, data);
     vidData = data.videos;
     vidHasLikes = wantLikes;
     if (!vidData.length) {
@@ -753,7 +902,6 @@ async function loadVideos(force = false) {
       showEmpty(status, state.search ? '검색 결과가 없습니다' : '표시할 영상이 없습니다', state.search ? '검색어를 조금 다르게 입력하거나 카테고리 필터를 해제해 보세요.' : '기간을 바꾸거나 새로고침으로 최신 데이터를 다시 확인해 보세요.');
       return;
     }
-    status.style.display = 'none';
     renderVideos();
   } catch (e) {
     if (seq !== loadSeq) return;
@@ -839,6 +987,7 @@ async function loadAI(force = false) {
     status.style.display = 'none';
     document.getElementById('updated').textContent =
       '업데이트: ' + new Date(data.fetchedAt * 1000).toLocaleTimeString('ko-KR');
+    renderCacheAge(status, data);
     renderModels('aiLatest', data.models.latest);
     renderModels('aiTrending', data.models.trending);
     const nl = document.getElementById('aiNews');
@@ -886,6 +1035,7 @@ function timeAgo(ts) {
 
 /* ---------- 인스타 릴스 탭 ---------- */
 let reelsData = [];
+let reelsMeta = {};
 const reelsState = { sort: 'views' };  // views | likes | comments
 async function loadReels(force = false) {
   const status = document.getElementById('reelsStatus');
@@ -898,10 +1048,12 @@ async function loadReels(force = false) {
     accountManagers.reels.render(data.accounts);
     document.getElementById('updated').textContent =
       '업데이트: ' + new Date(data.fetchedAt * 1000).toLocaleTimeString('ko-KR');
+    renderCacheAge(status, data);
     reelsData = data.reels || [];
+    reelsMeta = data;
     if (!reelsData.length) {
       clearSkeleton(grid, 'grid shorts');
-      document.getElementById('reelsCount').textContent = '';
+      setSortCount(document.getElementById('reelsCount'), '', data);
       if (data.accounts && data.accounts.length) {
         showReelsFallback(data.accounts);
       } else {
@@ -910,7 +1062,6 @@ async function loadReels(force = false) {
       return;
     }
     document.getElementById('reelsFallback').style.display = 'none';
-    status.style.display = 'none';
     renderReels();
   } catch (e) {
     clearSkeleton(grid, 'grid shorts');
@@ -924,8 +1075,7 @@ function renderReels() {
   const sorted = reelsData.slice().sort((a, b) => (b[f] || 0) - (a[f] || 0));
   grid.innerHTML = '';
   sorted.forEach((r, i) => grid.appendChild(postCard(r, i + 1, 'reels')));
-  document.getElementById('reelsCount').textContent =
-    `${label[f]} 기준 · 총 ${sorted.length}개`;
+  setSortCount(document.getElementById('reelsCount'), `${label[f]} 기준 · 총 ${sorted.length}개`, reelsMeta);
 }
 
 /* ---------- 계정·정렬 공통 팩토리 ---------- */
@@ -1013,6 +1163,7 @@ const social = {
   x: { data: [], sort: 'likes', opts: ['likes', 'replies', 'reposts', 'views'], repostField: 'retweets' },
   threads: { data: [], sort: 'likes', opts: ['likes', 'replies', 'reposts'], repostField: 'reposts' },
 };
+const socialMeta = { x: {}, threads: {} };
 
 const VIDEO_SORT_OPTIONS = [
   { key: 'views', label: '조회수순', svgIcon: 'i-eye' },
@@ -1179,6 +1330,114 @@ const fmt2 = n => {
   return (n || 0).toLocaleString('ko-KR');
 };
 
+const SOURCE_META = {
+  youtube: { label: '영상', color: '--c-youtube' },
+  shorts: { label: '쇼츠', color: '--c-shorts' },
+  ai: { label: 'AI', color: '--c-ai' },
+  reels: { label: '릴스', color: '--c-reels' },
+  x: { label: 'X', color: '--c-x' },
+  threads: { label: '스레드', color: '--c-threads' },
+  tiktok: { label: '틱톡', color: '--c-tiktok' },
+};
+
+function sourceMeta(source) {
+  return SOURCE_META[source] || { label: source || '출처', color: '--accent' };
+}
+
+function proxiedThumb(url) {
+  if (!url) return '';
+  return /^https?:\/\//.test(url) ? `/api/img?u=${encodeURIComponent(url)}` : url;
+}
+
+function isYouTubeUrl(url) {
+  return /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)/.test(url || '');
+}
+
+function youTubeIdFromUrl(url) {
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname.includes('youtu.be')) return parsed.pathname.slice(1).split('/')[0];
+    if (parsed.pathname.startsWith('/shorts/')) return parsed.pathname.split('/')[2];
+    return parsed.searchParams.get('v') || '';
+  } catch (e) {
+    return '';
+  }
+}
+
+function openSavedItem(item) {
+  if (isYouTubeUrl(item.url)) {
+    const id = youTubeIdFromUrl(item.url);
+    if (id) {
+      openPlayer(id, item.source === 'shorts' || item.url.includes('/shorts/'));
+      return;
+    }
+  }
+  window.open(item.url, '_blank');
+}
+
+function savedCard(item) {
+  const meta = sourceMeta(item.source);
+  const card = document.createElement('article');
+  card.className = 'saved-card';
+  wireCardAction(card, () => openSavedItem(item));
+  const thumb = proxiedThumb(item.thumbnail);
+  if (thumb) {
+    const img = document.createElement('img');
+    img.className = 'saved-thumb';
+    img.loading = 'lazy';
+    img.alt = '';
+    img.src = thumb;
+    card.appendChild(img);
+  } else {
+    const fallback = document.createElement('div');
+    fallback.className = 'saved-thumb';
+    fallback.setAttribute('aria-hidden', 'true');
+    card.appendChild(fallback);
+  }
+  const del = document.createElement('button');
+  del.type = 'button';
+  del.className = 'del';
+  del.setAttribute('aria-label', `${item.title || '저장한 카드'} 삭제`);
+  del.textContent = '삭제';
+  del.addEventListener('click', e => {
+    e.stopPropagation();
+    syncSaved('remove', { id: item.id });
+  });
+  del.addEventListener('keydown', e => e.stopPropagation());
+  del.addEventListener('keyup', e => e.stopPropagation());
+  const body = document.createElement('div');
+  body.className = 'saved-meta';
+  const title = document.createElement('div');
+  title.className = 'saved-title';
+  title.textContent = item.title || '';
+  const sub = document.createElement('div');
+  sub.className = 'saved-sub';
+  const source = document.createElement('span');
+  source.className = 'saved-source';
+  source.style.setProperty('--source-color', `var(${meta.color})`);
+  source.textContent = meta.label;
+  const savedAt = document.createElement('span');
+  savedAt.textContent = timeAgo(item.savedAt);
+  sub.append(source, savedAt);
+  body.append(title, sub);
+  card.append(del, body);
+  return card;
+}
+
+function renderSaved() {
+  const status = document.getElementById('savedStatus');
+  const grid = document.getElementById('savedGrid');
+  resetStatus(status);
+  grid.innerHTML = '';
+  const items = Array.from(savedByUrl.values()).sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
+  if (!items.length) {
+    showEmpty(status, '저장한 카드가 없습니다', '카드의 북마크 아이콘을 누르면 여기에 모입니다');
+    return;
+  }
+  status.style.display = 'none';
+  items.forEach(item => grid.appendChild(savedCard(item)));
+}
+
 /* ---------- 홈 브리핑 ---------- */
 const HOME_SECTIONS = [
   { key: 'youtube', tab: 'youtube', label: '영상', svgIcon: 'i-film', color: '--c-youtube', url: force => `/api/videos?period=week${force ? '&force=1' : ''}`, sourceName: '유튜브' },
@@ -1341,7 +1600,7 @@ async function loadHome(force = false) {
       const data = result.value || {};
       latestFetchedAt = Math.max(latestFetchedAt, data.fetchedAt || 0);
       const items = homeItems(section, data);
-      view.count.textContent = `${items.length}개`;
+      view.count.textContent = `${items.length}개${data.fetchedAt ? ' · ' + formatAge(data.fetchedAt) : ''}`;
       if (items.length) {
         const grid = document.createElement('div');
         grid.className = 'home-rowgrid';
@@ -1369,7 +1628,7 @@ function renderSocial(kind) {
   const sorted = social[kind].data.slice().sort((a, b) => (b[f] || 0) - (a[f] || 0));
   listEl.innerHTML = '';
   sorted.forEach((p, i) => listEl.appendChild(socialPostCard(p, i + 1, kind)));
-  cntEl.textContent = sorted.length ? `총 ${sorted.length}개 글` : '';
+  setSortCount(cntEl, sorted.length ? `총 ${sorted.length}개 글` : '', socialMeta[kind]);
 }
 
 async function loadSocial(kind, force = false) {
@@ -1384,15 +1643,17 @@ async function loadSocial(kind, force = false) {
     accountManagers[kind].render(data.accounts);
     document.getElementById('updated').textContent =
       '업데이트: ' + new Date(data.fetchedAt * 1000).toLocaleTimeString('ko-KR');
+    renderCacheAge(statusEl, data);
     social[kind].data = data.posts || [];
+    socialMeta[kind] = data;
     if (!social[kind].data.length) {
       clearSkeleton(listEl, 'postlist');
-      statusEl.style.display = 'none';
-      if (kind === 'threads') showThreadsFallback(data.accounts);
+      renderCacheAge(statusEl, data);
+      if (kind === 'threads' && data.accounts && data.accounts.length) showThreadsFallback(data.accounts);
+      else if (kind === 'threads') showEmpty(statusEl, '구독 계정이 없습니다', '스레드 계정을 추가하면 바로가기와 최신 글 조회를 시도할 수 있습니다.');
       else showEmpty(statusEl, data.accounts && data.accounts.length ? '가져온 글이 없습니다' : '구독 계정이 없습니다', data.accounts && data.accounts.length ? '계정을 확인하거나 잠시 후 새로고침해 주세요.' : '팔로우하고 싶은 X 계정을 추가하면 최신 글을 모아볼 수 있습니다.');
       return;
     }
-    statusEl.style.display = 'none';
     renderSocial(kind);
   } catch (e) {
     clearSkeleton(listEl, 'postlist');
@@ -1402,7 +1663,7 @@ async function loadSocial(kind, force = false) {
 function showThreadsFallback(accounts) {
   const box = document.getElementById('thFallback');
   box.style.display = 'block';
-  box.innerHTML = `<p class="note" style="margin-top:4px"><svg class="icon icon-sm" style="color:var(--warning)"><use href="#i-alert"/></svg> 지금은 스레드가 로그인 없는 조회를 차단하고 있어 실시간 글을 가져오지 못했습니다. 아래에서 각 계정을 바로 열어볼 수 있습니다. (메타가 접근을 다시 허용하면 자동으로 목록이 채워집니다.)</p>
+  box.innerHTML = `<p class="fallback-info"><svg class="icon icon-sm"><use href="#i-info"/></svg> 메타가 비로그인 조회를 제한해 계정 바로가기로 전환했습니다</p>
     <div class="linkgrid"></div>`;
   const grid = box.querySelector('.linkgrid');
   if (!accounts.length) {
@@ -1432,7 +1693,7 @@ function showThreadsFallback(accounts) {
 function showReelsFallback(accounts) {
   const box = document.getElementById('reelsFallback');
   box.style.display = 'block';
-  box.innerHTML = `<p class="note" style="margin-top:4px"><svg class="icon icon-sm" style="color:var(--warning)"><use href="#i-alert"/></svg> 인스타그램이 요청을 제한하고 있어 릴스를 가져오지 못했습니다. 아래에서 각 계정 프로필을 바로 열어볼 수 있습니다.</p>
+  box.innerHTML = `<p class="fallback-info"><svg class="icon icon-sm"><use href="#i-info"/></svg> 메타가 비로그인 조회를 제한해 계정 바로가기로 전환했습니다</p>
     <div class="linkgrid"></div>`;
   const grid = box.querySelector('.linkgrid');
   accounts.forEach(name => {
@@ -1457,6 +1718,7 @@ function showReelsFallback(accounts) {
 
 /* ---------- 틱톡 탭 (tikwm 실시간) ---------- */
 let tiktokData = [];
+let tiktokMeta = {};
 const tiktokState = { sort: 'views' };  // views | likes | comments
 async function loadTikTok(force = false) {
   const status = document.getElementById('ttStatus');
@@ -1469,14 +1731,15 @@ async function loadTikTok(force = false) {
     accountManagers.tiktok.render(data.accounts);
     document.getElementById('updated').textContent =
       '업데이트: ' + new Date(data.fetchedAt * 1000).toLocaleTimeString('ko-KR');
+    renderCacheAge(status, data);
     tiktokData = data.posts || [];
+    tiktokMeta = data;
     if (!tiktokData.length) {
       clearSkeleton(grid, 'grid shorts');
-      document.getElementById('ttCount').textContent = '';
+      setSortCount(document.getElementById('ttCount'), '', data);
       showEmpty(status, data.accounts && data.accounts.length ? '가져온 틱톡 영상이 없습니다' : '구독 계정이 없습니다', data.accounts && data.accounts.length ? '잠시 후 새로고침해 주세요. 무료 API가 일시적으로 제한되는 경우가 있습니다.' : '틱톡 계정을 추가하면 구독 계정 영상과 인기 피드를 함께 볼 수 있습니다.');
       return;
     }
-    status.style.display = 'none';
     renderTikTok();
   } catch (e) {
     clearSkeleton(grid, 'grid shorts');
@@ -1490,7 +1753,7 @@ function renderTikTok() {
   const sorted = tiktokData.slice().sort((a, b) => (b[f] || 0) - (a[f] || 0));
   grid.innerHTML = '';
   sorted.forEach((t, i) => grid.appendChild(postCard(t, i + 1, 'tiktok')));
-  document.getElementById('ttCount').textContent = `${label[f]} 기준 · 총 ${sorted.length}개`;
+  setSortCount(document.getElementById('ttCount'), `${label[f]} 기준 · 총 ${sorted.length}개`, tiktokMeta);
 }
 
 /* ---------- 초기화 ---------- */
@@ -1566,7 +1829,7 @@ document.getElementById('refreshBtn').onclick = () => {
 renderTabs();
 initAccountManagers();
 initSortMenus();
-initCategories().then(() => switchTab('home'));
+Promise.all([initCategories(), initSaved()]).then(() => switchTab('home'));
 </script>
 </body>
 </html>
