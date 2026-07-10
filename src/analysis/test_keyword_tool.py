@@ -38,3 +38,13 @@ class KeywordToolTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class StopwordQualityTest(unittest.TestCase):
+    def test_common_function_words_are_stopwords(self):
+        for word in ("in", "to", "you", "is", "it", "on", "we", "are"):
+            self.assertNotIn(word, keyword_tool.tokens("in to you is it on we are"))
+
+    def test_content_words_survive(self):
+        self.assertIn("openai", keyword_tool.tokens("OpenAI in the news"))
+        self.assertIn("손흥민", keyword_tool.tokens("손흥민 골 소식"))

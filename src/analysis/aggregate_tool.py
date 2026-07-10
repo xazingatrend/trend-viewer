@@ -241,7 +241,11 @@ def correlate(snapshot):
             token_platforms.setdefault(token, set()).add(platform)
 
     fallback_anchors = sorted(
-        token for token, platforms in token_platforms.items() if len(platforms) >= 2
+        token
+        for token, platforms in token_platforms.items()
+        if len(platforms) >= 2
+        and (len(token) >= 3 or not token.isascii())
+        and not token.isdigit()
     )
     for anchor in fallback_anchors:
         compact = anchor.replace(" ", "")
@@ -249,6 +253,12 @@ def correlate(snapshot):
             continue
         topic = _topic_for_anchor(anchor, anchor, items, trend_anchored=False)
         if topic is not None:
+            # Bare tokens make poor display titles; surface the strongest matched
+            # headline instead while keeping the token as the keyword.
+            best = max(topic["items"], key=lambda item: _as_int(item.get("metric")))
+            best_title = str(best.get("title") or "").strip()
+            if best_title:
+                topic["title"] = best_title
             topics.append(topic)
 
     topics.sort(key=lambda topic: (-topic["score"], topic["keyword"]))

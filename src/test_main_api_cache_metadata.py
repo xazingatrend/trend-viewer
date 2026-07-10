@@ -135,6 +135,26 @@ class MainApiCacheMetadataTest(unittest.TestCase):
         self.assertEqual(body["models"], {"latest": []})
         self.assert_cache_metadata(body)
 
+    def test_analysis_handler_passes_through_entry_ttl_and_validates_country(self):
+        data = {"clusters": [], "briefing": "분석 대기", "generatedBy": "heuristic"}
+        for cache_ttl, country, expected_country in ((300, "us", "US"), (1800, "xx", "KR")):
+            with self.subTest(cache_ttl=cache_ttl, country=country):
+                self.sent.clear()
+                with mock.patch.object(
+                    main.synthesis_tool,
+                    "get_analysis",
+                    return_value=(data, 123.5, cache_ttl),
+                ) as get_analysis:
+                    self.handler._handle_analysis({"country": [country], "force": ["1"]})
+
+                get_analysis.assert_called_once_with(expected_country, True)
+                code, body = self.sent[-1]
+                self.assertEqual(code, 200)
+                self.assertEqual(body["clusters"], [])
+                self.assertEqual(body["country"], expected_country)
+                self.assertEqual(body["fetchedAt"], 123.5)
+                self.assertEqual(body["cacheTtl"], cache_ttl)
+
 
 if __name__ == "__main__":
     unittest.main()
